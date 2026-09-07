@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudySync — Organiza. Estudia. Logra.</title>
+<style>
+:root{
+  --bg:#fbf8ff; --card:#fff; --text:#241b38; --muted:#7d758c;
+  --primary:#7b4bc4; --primary2:#a979e5; --pink:#ed6fa9;
+  --line:#eadff5; --success:#43a86b; --warning:#e4a51d; --danger:#e96b7d;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#fbf8ff,#f5edff);color:var(--text)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1100px;margin:auto;min-height:100vh;display:grid;grid-template-columns:235px 1fr;background:var(--bg)}
+.sidebar{padding:28px 18px;border-right:1px solid var(--line);background:#fff}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:23px;color:var(--primary);margin:0 10px 35px}
+.logo{width:40px;height:40px;border-radius:13px;background:#eee2ff;display:grid;place-items:center;font-size:22px}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nav button{border:0;background:transparent;color:#756d82;padding:13px 14px;border-radius:14px;text-align:left;display:flex;gap:12px;align-items:center}
+.nav button:hover,.nav button.active{background:#f1e8ff;color:var(--primary);font-weight:700}
+.nav-icon{width:22px;text-align:center}
+.main{padding:28px 32px 40px;overflow:hidden}
+.mobile-head{display:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.topbar h1{font-size:27px;margin:0 0 5px}
+.topbar p{margin:0;color:var(--muted)}
+.avatar{width:45px;height:45px;border-radius:50%;background:#f4d8ec;display:grid;place-items:center;font-size:23px}
+.view{display:none}.view.active{display:block}
+.grid{display:grid;grid-template-columns:1.35fr .85fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 8px 25px rgba(91,54,133,.06)}
+.progress{background:linear-gradient(135deg,#eee3ff,#fff0f7)}
+.progress-row{display:flex;justify-content:space-between;align-items:end}
+.big{font-size:46px;font-weight:850;color:var(--primary)}
+.bar{height:12px;border-radius:99px;background:#e6ddec;overflow:hidden;margin:12px 0}
+.bar span{display:block;height:100%;width:78%;background:linear-gradient(90deg,var(--primary),var(--pink));border-radius:99px}
+.muted{color:var(--muted)}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
+.section-title h2{font-size:19px;margin:0}
+.link{color:var(--primary);font-weight:700;border:0;background:transparent}
+.task-list{display:flex;flex-direction:column;gap:10px}
+.task{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.check{width:23px;height:23px;border:2px solid #9c78ca;border-radius:7px;display:grid;place-items:center;background:white;flex:0 0 auto}
+.task.done .check{background:var(--primary);color:#fff}.task.done .check:after{content:"✓";font-weight:900}
+.task.done .task-title{text-decoration:line-through;color:#9b94a5}
+.task-info{flex:1}.task-title{font-weight:750}.task-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#f2eaff;color:var(--primary)}
+.badge.red{background:#ffe7ed;color:#c94d63}.badge.yellow{background:#fff2cc;color:#a8790b}.badge.green{background:#e2f5e9;color:#328053}
+.exam{background:linear-gradient(135deg,#fff0f8,#f0e8ff);border-color:#edc9e3}
+.exam h3{margin:5px 0}.exam .days{display:inline-block;margin-top:10px;padding:8px 12px;border-radius:12px;background:#eadcff;color:var(--primary);font-weight:800}
+.primary{border:0;background:linear-gradient(90deg,var(--primary),#9563d5);color:white;padding:13px 18px;border-radius:14px;font-weight:800;box-shadow:0 8px 18px rgba(123,75,196,.22)}
+.primary.full{width:100%;font-size:16px}
+.secondary{border:1px solid var(--line);background:#fff;color:var(--primary);padding:11px 15px;border-radius:13px;font-weight:750}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{padding:17px;border:1px solid var(--line);border-radius:16px;text-align:center;background:#fff}.stat b{font-size:24px;color:var(--primary);display:block}.stat span{font-size:12px;color:var(--muted)}
+.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.calendar-head h2{margin:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.dow{text-align:center;font-size:12px;color:var(--muted);font-weight:800;padding:5px}
+.day{min-height:70px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:8px;position:relative}.day.mutedday{opacity:.45}.day.today{outline:2px solid var(--primary)}.day.selected{background:#f0e6ff;border-color:#b995e6}.num{font-weight:800}.event-dot{display:block;margin-top:7px;font-size:10px;color:var(--primary);font-weight:800;white-space:nowrap;overflow:hidden}
+.note-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.note{border:1px solid var(--line);border-radius:17px;padding:16px;background:#fff}.note h3{margin:0 0 7px}.note p{margin:0;color:var(--muted);font-size:14px;white-space:pre-wrap}
+.profile{display:grid;grid-template-columns:1fr 1fr;gap:18px}.profile-card{text-align:center}.profile-avatar{width:86px;height:86px;margin:auto;border-radius:28px;background:#eee1ff;display:grid;place-items:center;font-size:42px}
+.ai{background:linear-gradient(135deg,#f0e7ff,#ffeef7)}.ai textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:15px;padding:13px;background:#fff;outline:none}.ai textarea:focus,input:focus,select:focus{border-color:#b58ce2;box-shadow:0 0 0 3px #f0e6ff}.plan{margin-top:15px;display:none}.plan.show{display:block}.plan-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.plan-item:last-child{border-bottom:0}.plan-day{font-weight:850;color:var(--primary);min-width:78px}
+.modal{position:fixed;inset:0;background:rgba(31,19,45,.42);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal.show{display:flex}.modal-box{width:min(480px,100%);background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)}.modal-top{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#f4eff9;border-radius:10px;width:35px;height:35px}.form{display:grid;gap:12px;margin-top:15px}.form label{font-size:13px;font-weight:800}.form input,.form select{border:1px solid var(--line);border-radius:12px;padding:12px;outline:none}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;bottom:22px;right:22px;background:#241b38;color:#fff;padding:13px 16px;border-radius:13px;display:none;z-index:30}.toast.show{display:block}
+@media(max-width:760px){
+ .app{display:block}.sidebar{display:none}.main{padding:20px 15px 90px}.mobile-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.mobile-brand{font-weight:850;color:var(--primary);font-size:21px}.grid,.profile{grid-template-columns:1fr}.note-grid{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(3,1fr)}.topbar{display:none}.cal{gap:4px}.day{min-height:55px;padding:5px}.event-dot{font-size:8px}.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid!important;grid-template-columns:repeat(5,1fr);z-index:15}.bottom button{border:0;background:#fff;padding:9px 3px;color:#81788e;font-size:11px}.bottom button.active{color:var(--primary);font-weight:800}.bottom span{display:block;font-size:18px}.sidebar+.main{min-height:100vh}
+}
+.bottom{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">📖</div>StudySync</div>
+    <nav class="nav">
+      <button class="active" data-view="home"><span class="nav-icon">⌂</span>Inicio</button>
+      <button data-view="tasks"><span class="nav-icon">✓</span>Tareas</button>
+      <button data-view="calendar"><span class="nav-icon">▣</span>Calendario</button>
+      <button data-view="notes"><span class="nav-icon">▤</span>Apuntes</button>
+      <button data-view="profile"><span class="nav-icon">♙</span>Perfil</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-head">
+      <div class="mobile-brand">📖 StudySync</div><div class="avatar">☁️</div>
+    </div>
+    <div class="topbar">
+      <div><h1 id="pageTitle">¡Hola, Angy! 👋</h1><p id="pageSubtitle">Vamos a hacer que hoy sea productivo ✨</p></div>
+      <div class="avatar">☁️</div>
+    </div>
+
+    <section id="home" class="view active">
+      <div class="grid">
+        <div>
+          <div class="card progress">
+            <div class="progress-row"><div><div class="muted">Tu progreso esta semana</div><div class="big" id="progressNumber">78%</div></div><div style="font-size:44px">🏆</div></div>
+            <div class="bar"><span id="progressBar"></span></div>
+            <div class="muted" id="progressText">Has completado 11 de 14 tareas · 🔥 5 días de racha</div>
+          </div>
+          <div class="section-title"><h2>Tareas de hoy</h2><button class="link" onclick="showView('tasks')">Ver todas →</button></div>
+          <div class="task-list" id="homeTasks"></div>
+        </div>
+        <div>
+          <div class="card exam">
+            <div class="muted">📅 Próximo evento</div>
+            <h3>Examen de Matemática</h3>
+            <div class="muted">Viernes, 14 de agosto</div>
+            <div class="days">⏱ 4 días restantes</div>
+          </div>
+          <div style="margin-top:15px"><button class="primary full" onclick="openModal()">＋ Agregar tarea</button></div>
+          <div class="card" style="margin-top:15px">
+            <div class="section-title" style="margin-top:0"><h2>✨ Acceso rápido</h2></div>
+            <div class="action-row">
+              <button class="secondary" onclick="showView('calendar')">📅 Calendario</button>
+              <button class="secondary" onclick="showView('notes')">📝 Apuntes</button>
+              <button class="secondary" onclick="showView('ai')">🤖 Planificar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tasks" class="view">
+      <div class="card">
+        <div class="section-title" style="margin-top:0"><h2>Mis tareas</h2><button class="primary" onclick="openModal()">＋ Nueva tarea</button></div>
+        <div class="action-row" style="margin-bottom:15px">
+          <button class="secondary" onclick="filterTasks('all')">Todas</button><button class="secondary" onclick="filterTasks('pending')">Pendientes</button><button class="secondary" onclick="filterTasks('done')">Completadas</button>
+        </div>
+        <div class="task-list" id="allTasks"></div>
+      </div>
+    </section>
+
+    <section id="calendar" class="view">
+      <div class="card">
+        <div class="calendar-head"><button class="secondary" onclick="changeMonth(-1)">←</button><h2 id="monthLabel">Agosto 2026</h2><button class="secondary" onclick="changeMonth(1)">→</button></div>
+        <div class="cal" id="calendarGrid"></div>
+        <div id="selectedEvent" class="card" style="margin-top:15px;background:#f7f0ff;display:none"></div>
+      </div>
+    </section>
+
+    <section id="notes" class="view">
+      <div class="card">
+        <div class="section-title" style="margin-top:0"><h2>Mis apuntes</h2><button class="primary" onclick="addNote()">＋ Nuevo apunte</button></div>
+        <div class="note-grid" id="notesGrid"></div>
+      </div>
+    </section>
+
+    <section id="profile" class="view">
+      <div class="profile">
+        <div class="card profile-card"><div class="profile-avatar">☁️</div><h2>Angy</h2><p class="muted">Estudiante</p><div class="stat-grid"><div class="stat"><b id="statProgress">78%</b><span>Progreso</span></div><div class="stat"><b id="statDone">11</b><span>Completadas</span></div><div class="stat"><b>🔥 5</b><span>Racha</span></div></div></div>
+        <div class="card"><h2>⚙️ Configuración</h2><p>🔔 Notificaciones</p><p>🎨 Apariencia</p><p>📚 Mis materias</p><p>🔐 Privacidad</p><hr style="border:0;border-top:1px solid var(--line)"><div class="card" style="background:#f4eaff"><b>⭐ StudySync Plus</b><p class="muted">Estadísticas avanzadas y planificación inteligente.</p><button class="primary" onclick="toast('¡Demo! La suscripción se activaría aquí.')">Probar Plus</button></div></div>
+      </div>
+    </section>
+
+    <section id="ai" class="view">
+      <div class="card ai">
+        <h2>🤖 Planificación inteligente</h2>
+        <p class="muted">Cuéntame qué tienes que hacer y StudySync organizará tu tiempo.</p>
+        <textarea id="aiInput" placeholder="Ej.: Tengo examen de Matemática el viernes. Me faltan ecuaciones, funciones y geometría."></textarea>
+        <button class="primary full" style="margin-top:10px" onclick="makePlan()">✨ Crear mi plan</button>
+        <div class="plan" id="plan">
+          <h3>Tu plan de estudio</h3>
+          <div class="plan-item"><div class="plan-day">Lunes</div><div>📐 Ecuaciones · 30 min</div></div>
+          <div class="plan-item"><div class="plan-day">Martes</div><div>📐 Funciones · 30 min</div></div>
+          <div class="plan-item"><div class="plan-day">Miércoles</div><div>📐 Geometría · 45 min</div></div>
+          <div class="plan-item"><div class="plan-day">Jueves</div><div>🔄 Repaso general · 40 min</div></div>
+          <div class="plan-item"><div class="plan-day">Viernes</div><div>🎯 Examen — ¡Tú puedes!</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom">
+  <button class="active" data-view="home"><span>⌂</span>Inicio</button>
+  <button data-view="tasks"><span>✓</span>Tareas</button>
+  <button data-view="calendar"><span>▣</span>Calendario</button>
+  <button data-view="notes"><span>▤</span>Apuntes</button>
+  <button data-view="profile"><span>♙</span>Perfil</button>
+</nav>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-top"><h2 style="margin:0">Nueva tarea ✨</h2><button class="close" onclick="closeModal()">✕</button></div>
+    <form class="form" onsubmit="saveTask(event)">
+      <div><label>Nombre de la tarea</label><input id="taskName" required placeholder="Ej. Terminar presentación"></div>
+      <div class="form-row"><div><label>Materia</label><input id="taskSubject" required placeholder="Informática"></div><div><label>Fecha</label><input id="taskDate" type="date" required></div></div>
+      <button class="primary full" type="submit">Guardar tarea</button>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const defaultTasks=[
+ {id:1,title:"Terminar presentación",subject:"Informática",date:"2026-08-10",done:false},
+ {id:2,title:"Resolver ejercicios",subject:"Matemática",date:"2026-08-10",done:true},
+ {id:3,title:"Leer capítulo 4",subject:"Historia",date:"2026-08-11",done:false},
+ {id:4,title:"Investigar ecosistemas",subject:"Ciencia",date:"2026-08-12",done:false}
+];
+let tasks=JSON.parse(localStorage.getItem("studysync_tasks")||"null")||defaultTasks;
+let notes=JSON.parse(localStorage.getItem("studysync_notes")||"null")||[
+ {title:"Ecuaciones lineales",subject:"Matemática",text:"Despejar la variable y comprobar el resultado."},
+ {title:"Revolución Industrial",subject:"Historia",text:"Cambios tecnológicos, sociales y económicos del siglo XVIII."},
+ {title:"HTML básico",subject:"Informática",text:"HTML estructura, CSS diseño y JavaScript comportamiento."},
+ {title:"Fórmulas para examen",subject:"Matemática",text:"Repasar áreas, perímetros y ecuaciones."}
+];
+let currentFilter="all", calDate=new Date(2026,7,1);
+
+const titles={home:["¡Hola, Angy! 👋","Vamos a hacer que hoy sea productivo ✨"],tasks:["Mis tareas","Organiza todo en un solo lugar."],calendar:["Mi calendario","Mira todo lo que viene."],notes:["Mis apuntes","Todo tu conocimiento, organizado."],profile:["Mi perfil","Tu progreso, a tu ritmo."],ai:["Planificación inteligente 🤖","Convierte tus pendientes en un plan."]};
+
+document.querySelectorAll("[data-view]").forEach(btn=>btn.addEventListener("click",()=>showView(btn.dataset.view)));
+
+function showView(id){
+ document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+ document.getElementById("pageTitle").textContent=titles[id]?.[0]||"StudySync";
+ document.getElementById("pageSubtitle").textContent=titles[id]?.[1]||"";
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(id==="calendar")renderCalendar();
+ if(id==="tasks")renderTasks();
+ if(id==="notes")renderNotes();
+}
+
+function save(){localStorage.setItem("studysync_tasks",JSON.stringify(tasks))}
+function dateText(d){
+ const [y,m,day]=d.split("-").map(Number); const x=new Date(y,m-1,day);
+ return x.toLocaleDateString("es-PE",{day:"numeric",month:"long"});
+}
+function renderTask(t){
+ const badge=t.done?"green":(t.date==="2026-08-10"?"red":"yellow");
+ const label=t.done?"Completada":(t.date==="2026-08-10"?"Hoy":dateText(t.date));
+ return `<div class="task ${t.done?"done":""}" onclick="toggleTask(${t.id})">
+   <div class="check"></div><div class="task-info"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-sub">${escapeHtml(t.subject)} · ${dateText(t.date)}</div></div><span class="badge ${badge}">${label}</span>
+ </div>`;
+}
+function renderTasks(filter=currentFilter){
+ currentFilter=filter;
+ let list=tasks.filter(t=>filter==="all" ? true : filter==="done"?t.done:!t.done);
+ document.getElementById("allTasks").innerHTML=list.length?list.map(renderTask).join(""):"<div class='muted'>No hay tareas en esta categoría.</div>";
+ renderHome();
+ updateStats();
+}
+function renderHome(){
+ const today=tasks.filter(t=>t.date==="2026-08-10").slice(0,3);
+ document.getElementById("homeTasks").innerHTML=today.map(renderTask).join("")||"<div class='muted'>🎉 No tienes tareas para hoy.</div>";
+ updateStats();
+}
+function toggleTask(id){const t=tasks.find(x=>x.id===id);t.done=!t.done;save();renderTasks(currentFilter);toast(t.done?"¡Tarea completada! 🎉":"Tarea marcada como pendiente.");}
+function updateStats(){
+ const done=tasks.filter(t=>t.done).length,total=tasks.length||1,pct=Math.round(done/total*100);
+ document.getElementById("progressNumber").textContent=pct+"%";document.getElementById("progressBar").style.width=pct+"%";
+ document.getElementById("progressText").textContent=`Has completado ${done} de ${total} tareas · 🔥 5 días de racha`;
+ document.getElementById("statProgress").textContent=pct+"%";document.getElementById("statDone").textContent=done;
+}
+function filterTasks(f){renderTasks(f)}
+function openModal(){document.getElementById("modal").classList.add("show");document.getElementById("taskDate").value="2026-08-10";document.getElementById("taskName").focus()}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function saveTask(e){
+ e.preventDefault();tasks.push({id:Date.now(),title:document.getElementById("taskName").value.trim(),subject:document.getElementById("taskSubject").value.trim(),date:document.getElementById("taskDate").value,done:false});save();e.target.reset();closeModal();renderTasks();toast("Tarea agregada ✨");
+}
+function renderCalendar(){
+ const y=calDate.getFullYear(),m=calDate.getMonth();
+ document.getElementById("monthLabel").textContent=new Date(y,m,1).toLocaleDateString("es-PE",{month:"long",year:"numeric"}).replace(/^./,c=>c.toUpperCase());
+ const first=new Date(y,m,1).getDay(); const offset=(first+6)%7; const days=new Date(y,m+1,0).getDate();
+ const prevDays=new Date(y,m,0).getDate(); let html=["L","M","X","J","V","S","D"].map(x=>`<div class="dow">${x}</div>`).join("");
+ for(let i=0;i<offset;i++){let n=prevDays-offset+i+1;html+=`<div class="day mutedday"><span class="num">${n}</span></div>`}
+ for(let d=1;d<=days;d++){
+   const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+   const ev=tasks.filter(t=>t.date===ds);
+   html+=`<div class="day ${ds==="2026-08-10"?"today":""}" onclick="selectDate('${ds}')"><span class="num">${d}</span>${ev.slice(0,2).map(e=>`<span class="event-dot">• ${escapeHtml(e.subject)}</span>`).join("")}</div>`;
+ }
+ const totalCells=Math.ceil((offset+days)/7)*7;for(let d=1;d<=totalCells-offset-days;d++)html+=`<div class="day mutedday"><span class="num">${d}</span></div>`;
+ document.getElementById("calendarGrid").innerHTML=html;
+}
+function changeMonth(n){calDate.setMonth(calDate.getMonth()+n);renderCalendar()}
+function selectDate(ds){
+ const ev=tasks.filter(t=>t.date===ds), box=document.getElementById("selectedEvent");box.style.display="block";
+ box.innerHTML=`<b>📅 ${dateText(ds)}</b><br><br>`+(ev.length?ev.map(e=>`${e.done?"☑":"☐"} ${escapeHtml(e.title)} — ${escapeHtml(e.subject)}`).join("<br>"):"<span class='muted'>No hay tareas programadas.</span>");
+}
+function renderNotes(){document.getElementById("notesGrid").innerHTML=notes.map((n,i)=>`<div class="note"><div class="muted">${escapeHtml(n.subject)}</div><h3>${escapeHtml(n.title)}</h3><p>${escapeHtml(n.text)}</p><button class="link" style="padding:0;margin-top:10px" onclick="deleteNote(${i})">Eliminar</button></div>`).join("")}
+function addNote(){
+ const title=prompt("Título del apunte:");if(!title)return;const subject=prompt("Materia:")||"General";const text=prompt("Contenido:")||"";
+ notes.push({title,subject,text});localStorage.setItem("studysync_notes",JSON.stringify(notes));renderNotes();toast("Apunte guardado 📝");
+}
+function deleteNote(i){notes.splice(i,1);localStorage.setItem("studysync_notes",JSON.stringify(notes));renderNotes();toast("Apunte eliminado.")}
+function makePlan(){if(!document.getElementById("aiInput").value.trim()){toast("Cuéntame primero qué tienes que estudiar ✨");return}document.getElementById("plan").classList.add("show");toast("¡Plan creado! 🤖")}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>el.classList.remove("show"),2200)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+renderHome();renderTasks();renderNotes();updateStats();
+</script>
+</body>
+</html>
