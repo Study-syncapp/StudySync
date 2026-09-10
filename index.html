@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudySync — Organiza. Estudia. Logra.</title>
+  <style>
+    :root{--bg:#fbf8ff;--card:#fff;--text:#241b38;--muted:#7d758c;--primary:#7b4bc4;--pink:#ed6fa9;--line:#eadff5;--ok:#43a86b}
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(135deg,#fbf8ff,#f5edff);color:var(--text)}
+    .app{max-width:1100px;margin:auto;min-height:100vh;display:grid;grid-template-columns:230px 1fr;background:var(--bg)}
+    aside{background:#fff;border-right:1px solid var(--line);padding:25px 16px}.brand{font-size:23px;font-weight:850;color:var(--primary);margin:0 10px 30px}.logo{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#eee2ff;margin-right:8px}
+    nav{display:grid;gap:7px}nav button{border:0;background:transparent;padding:13px;border-radius:13px;text-align:left;color:#766e82;font-weight:650}nav button.active,nav button:hover{background:#f1e8ff;color:var(--primary)}
+    main{padding:28px 30px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.top h1{margin:0 0 4px}.muted{color:var(--muted)}
+    .view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:1.35fr .85fr;gap:17px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:21px;box-shadow:0 8px 25px rgba(91,54,133,.06)}
+    .progress{background:linear-gradient(135deg,#eee3ff,#fff0f7)}.big{font-size:46px;font-weight:900;color:var(--primary)}.bar{height:11px;background:#e7dfed;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--pink));border-radius:99px;width:0}
+    .section{display:flex;justify-content:space-between;align-items:center;margin:23px 0 11px}.section h2{font-size:19px;margin:0}.primary{border:0;border-radius:13px;padding:12px 17px;background:linear-gradient(90deg,var(--primary),#9563d5);color:white;font-weight:800}.full{width:100%}
+    .task-list{display:grid;gap:10px}.task{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer}.check{width:23px;height:23px;border:2px solid #9c78ca;border-radius:7px;display:grid;place-items:center}.task.done .check{background:var(--primary);color:#fff}.task.done .check:after{content:"✓"}.task.done .title{text-decoration:line-through;color:#9b94a5}.info{flex:1}.title{font-weight:800}.sub{font-size:13px;color:var(--muted);margin-top:3px}.badge{font-size:12px;font-weight:800;background:#f1e8ff;color:var(--primary);border-radius:999px;padding:6px 9px}
+    .exam{background:linear-gradient(135deg,#fff0f8,#f0e8ff)}.exam h3{margin:7px 0}.days{display:inline-block;margin-top:10px;background:#eadcff;color:var(--primary);padding:8px 11px;border-radius:11px;font-weight:800}
+    .note-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.note{border:1px solid var(--line);padding:16px;border-radius:16px}.note h3{margin:7px 0}.note p{white-space:pre-wrap;color:var(--muted)}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.dow{text-align:center;color:var(--muted);font-size:12px;font-weight:800;padding:5px}.day{min-height:68px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px}.day.today{outline:2px solid var(--primary)}.dot{display:block;font-size:9px;color:var(--primary);font-weight:800;white-space:nowrap;overflow:hidden}
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{text-align:center;border:1px solid var(--line);border-radius:14px;padding:13px}.stat b{display:block;font-size:22px;color:var(--primary)}
+    .modal{position:fixed;inset:0;background:#21152c88;display:none;place-items:center;padding:20px}.modal.show{display:grid}.modalbox{background:#fff;border-radius:22px;padding:22px;width:min(480px,100%)}.modalhead{display:flex;justify-content:space-between}.close{border:0;border-radius:10px;padding:8px}.form{display:grid;gap:11px;margin-top:15px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;outline:0}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .status{position:fixed;right:18px;bottom:18px;background:#241b38;color:white;padding:11px 15px;border-radius:12px;display:none}.status.show{display:block}
+    .bottom{display:none}
+    @media(max-width:760px){.app{display:block}aside{display:none}main{padding:18px 14px 80px}.top{margin-bottom:18px}.grid,.profile-grid,.note-grid{grid-template-columns:1fr}.bottom{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:5}.bottom button{border:0;background:#fff;padding:8px 2px;color:#766e82;font-size:10px}.bottom button.active{color:var(--primary);font-weight:800}.bottom span{display:block;font-size:18px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><span class="logo">📖</span>StudySync</div>
+    <nav>
+      <button class="active" data-view="home">⌂ &nbsp; Inicio</button>
+      <button data-view="tasks">✓ &nbsp; Tareas</button>
+      <button data-view="calendar">▣ &nbsp; Calendario</button>
+      <button data-view="notes">▤ &nbsp; Apuntes</button>
+      <button data-view="profile">♙ &nbsp; Perfil</button>
+    </nav>
+  </aside>
+  <main>
+    <div class="top"><div><h1 id="title">¡Hola! 👋</h1><div class="muted" id="subtitle">Vamos a hacer que hoy sea productivo ✨</div></div><div>☁️</div></div>
+
+    <section id="home" class="view active">
+      <div class="grid">
+        <div>
+          <div class="card progress"><div class="muted">Tu progreso esta semana</div><div class="big" id="pct">0%</div><div class="bar"><span id="bar"></span></div><p class="muted" id="progressText">Cargando tus tareas...</p></div>
+          <div class="section"><h2>Tareas de hoy</h2><button class="primary" onclick="openTask()">＋ Agregar</button></div>
+          <div id="homeTasks" class="task-list"></div>
+        </div>
+        <div>
+          <div class="card exam"><div class="muted">📅 Próximo evento</div><h3>Examen de Matemática</h3><div class="muted">Viernes, 14 de agosto</div><div class="days">⏱ 4 días restantes</div></div>
+          <div class="card" style="margin-top:15px"><h2 style="margin-top:0">✨ Acceso rápido</h2><button class="primary full" onclick="showView('calendar')">Ver calendario</button><button class="primary full" style="margin-top:9px" onclick="showView('notes')">Ver apuntes</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tasks" class="view">
+      <div class="card"><div class="section" style="margin-top:0"><h2>Mis tareas</h2><button class="primary" onclick="openTask()">＋ Nueva tarea</button></div><div id="allTasks" class="task-list"></div></div>
+    </section>
+
+    <section id="calendar" class="view">
+      <div class="card"><div class="section" style="margin-top:0"><h2>Agosto 2026</h2></div><div class="calendar" id="calendarGrid"></div><div id="selected" class="card" style="display:none;margin-top:14px;background:#f6efff"></div></div>
+    </section>
+
+    <section id="notes" class="view">
+      <div class="card"><div class="section" style="margin-top:0"><h2>Mis apuntes</h2><button class="primary" onclick="openNote()">＋ Nuevo apunte</button></div><div id="notesGrid" class="note-grid"></div></div>
+    </section>
+
+    <section id="profile" class="view">
+      <div class="profile-grid"><div class="card" style="text-align:center"><div style="font-size:58px">☁️</div><h2>Estudiante StudySync</h2><div class="stats"><div class="stat"><b id="sPct">0%</b><span>Progreso</span></div><div class="stat"><b id="sDone">0</b><span>Completadas</span></div><div class="stat"><b>🔥 5</b><span>Racha</span></div></div></div>
+      <div class="card"><h2>⭐ StudySync Plus</h2><p class="muted">Estadísticas avanzadas, personalización y planificación inteligente.</p><button class="primary" onclick="notify('Esta función se activaría en la versión Plus.')">Probar Plus</button></div></div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom">
+  <button class="active" data-view="home"><span>⌂</span>Inicio</button><button data-view="tasks"><span>✓</span>Tareas</button><button data-view="calendar"><span>▣</span>Calendario</button><button data-view="notes"><span>▤</span>Apuntes</button><button data-view="profile"><span>♙</span>Perfil</button>
+</nav>
+
+<div class="modal" id="taskModal"><div class="modalbox"><div class="modalhead"><h2 style="margin:0">Nueva tarea ✨</h2><button class="close" onclick="closeModals()">✕</button></div>
+<form class="form" onsubmit="saveTask(event)"><input id="taskTitle" required placeholder="Nombre de la tarea"><div class="row"><input id="taskSubject" required placeholder="Materia"><input id="taskDate" type="date" required></div><button class="primary" type="submit">Guardar tarea</button></form></div></div>
+
+<div class="modal" id="noteModal"><div class="modalbox"><div class="modalhead"><h2 style="margin:0">Nuevo apunte 📝</h2><button class="close" onclick="closeModals()">✕</button></div>
+<form class="form" onsubmit="saveNote(event)"><input id="noteTitle" required placeholder="Título"><input id="noteSubject" required placeholder="Materia"><textarea id="noteText" rows="6" placeholder="Escribe tu apunte..."></textarea><button class="primary" type="submit">Guardar apunte</button></form></div></div>
+
+<div class="status" id="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, updateDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+/*
+  PEGA AQUÍ LA CONFIGURACIÓN QUE TE DA FIREBASE:
+  Firebase Console > Configuración del proyecto > Tus apps > Web > Configuración SDK.
+*/
+const firebaseConfig = {
+  apiKey: "PEGA_AQUI_TU_API_KEY",
+  authDomain: "PEGA_AQUI_TU_PROJECT_ID.firebaseapp.com",
+  projectId: "PEGA_AQUI_TU_PROJECT_ID",
+  storageBucket: "PEGA_AQUI_TU_STORAGE_BUCKET",
+  messagingSenderId: "PEGA_AQUI_TU_MESSAGING_SENDER_ID",
+  appId: "PEGA_AQUI_TU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let user = null;
+let tasks = [];
+let notes = [];
+
+const titles={
+  home:["¡Hola! 👋","Vamos a hacer que hoy sea productivo ✨"],
+  tasks:["Mis tareas","Organiza todo en un solo lugar."],
+  calendar:["Mi calendario","Mira todo lo que viene."],
+  notes:["Mis apuntes","Todo tu conocimiento, organizado."],
+  profile:["Mi perfil","Tu progreso, a tu ritmo."]
+};
+
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+  document.getElementById("title").textContent=titles[id][0];
+  document.getElementById("subtitle").textContent=titles[id][1];
+  if(id==="calendar") renderCalendar();
+}
+
+window.openTask=()=>{document.getElementById("taskModal").classList.add("show");document.getElementById("taskDate").value="2026-08-10";};
+window.openNote=()=>document.getElementById("noteModal").classList.add("show");
+window.closeModals=()=>document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"));
+window.notify=(m)=>{const x=document.getElementById("status");x.textContent=m;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2200)};
+
+window.saveTask=async(e)=>{
+  e.preventDefault();
+  if(!user)return notify("Conectando con Firebase...");
+  await addDoc(collection(db,"users",user.uid,"tasks"),{
+    title:document.getElementById("taskTitle").value.trim(),
+    subject:document.getElementById("taskSubject").value.trim(),
+    date:document.getElementById("taskDate").value,
+    done:false,createdAt:serverTimestamp()
+  });
+  e.target.reset();closeModals();notify("Tarea guardada en Firebase ✨");
+};
+
+window.saveNote=async(e)=>{
+  e.preventDefault();
+  if(!user)return notify("Conectando con Firebase...");
+  await addDoc(collection(db,"users",user.uid,"notes"),{
+    title:document.getElementById("noteTitle").value.trim(),
+    subject:document.getElementById("noteSubject").value.trim(),
+    text:document.getElementById("noteText").value.trim(),
+    createdAt:serverTimestamp()
+  });
+  e.target.reset();closeModals();notify("Apunte guardado en Firebase 📝");
+};
+
+window.toggleTask=async(id,done)=>{
+  await updateDoc(doc(db,"users",user.uid,"tasks",id),{done:!done});
+  notify(!done?"¡Tarea completada! 🎉":"Tarea marcada como pendiente.");
+};
+
+window.deleteNote=async(id)=>{
+  await deleteDoc(doc(db,"users",user.uid,"notes",id));notify("Apunte eliminado.");
+};
+
+function renderTasks(){
+  const render=t=>`<div class="task ${t.done?"done":""}" onclick="toggleTask('${t.id}',${t.done})"><div class="check"></div><div class="info"><div class="title">${safe(t.title)}</div><div class="sub">${safe(t.subject)} · ${safe(t.date)}</div></div><span class="badge">${t.done?"Completada":t.date==="2026-08-10"?"Hoy":"Pendiente"}</span></div>`;
+  document.getElementById("allTasks").innerHTML=tasks.length?tasks.map(render).join(""):"<div class='muted'>Todavía no tienes tareas. ¡Agrega la primera!</div>";
+  const today=tasks.filter(t=>t.date==="2026-08-10").slice(0,3);
+  document.getElementById("homeTasks").innerHTML=today.length?today.map(render).join(""):"<div class='muted'>🎉 No tienes tareas para hoy.</div>";
+  const done=tasks.filter(t=>t.done).length,total=tasks.length,pct=total?Math.round(done/total*100):0;
+  document.getElementById("pct").textContent=pct+"%";document.getElementById("bar").style.width=pct+"%";
+  document.getElementById("progressText").textContent=`Has completado ${done} de ${total} tareas · 🔥 5 días de racha`;
+  document.getElementById("sPct").textContent=pct+"%";document.getElementById("sDone").textContent=done;
+}
+function renderNotes(){
+  document.getElementById("notesGrid").innerHTML=notes.length?notes.map(n=>`<div class="note"><div class="muted">${safe(n.subject)}</div><h3>${safe(n.title)}</h3><p>${safe(n.text)}</p><button class="primary" onclick="deleteNote('${n.id}')">Eliminar</button></div>`).join(""):"<div class='muted'>Todavía no tienes apuntes.</div>";
+}
+function renderCalendar(){
+  const days=["L","M","X","J","V","S","D"];let html=days.map(d=>`<div class="dow">${d}</div>`).join("");
+  const first=new Date(2026,7,1).getDay(),offset=(first+6)%7;
+  const prev=new Date(2026,7,0).getDate();
+  for(let i=0;i<offset;i++)html+=`<div class="day" style="opacity:.35">${prev-offset+i+1}</div>`;
+  for(let d=1;d<=31;d++){
+    const ds=`2026-08-${String(d).padStart(2,"0")}`,ev=tasks.filter(t=>t.date===ds);
+    html+=`<div class="day ${d===10?"today":""}" onclick="selectDate('${ds}')"><b>${d}</b>${ev.slice(0,2).map(x=>`<span class="dot">• ${safe(x.subject)}</span>`).join("")}</div>`;
+  }
+  document.getElementById("calendarGrid").innerHTML=html;
+}
+window.selectDate=(ds)=>{
+  const ev=tasks.filter(t=>t.date===ds),box=document.getElementById("selected");box.style.display="block";
+  box.innerHTML=`<b>📅 ${ds}</b><br><br>`+(ev.length?ev.map(x=>`${x.done?"☑":"☐"} ${safe(x.title)} — ${safe(x.subject)}`).join("<br>"):"<span class='muted'>No hay tareas programadas.</span>");
+};
+
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+
+onAuthStateChanged(auth, u=>{
+  if(!u)return;
+  user=u;
+  const tq=query(collection(db,"users",u.uid,"tasks"),orderBy("createdAt","desc"));
+  onSnapshot(tq,s=>{tasks=s.docs.map(d=>({id:d.id,...d.data()}));renderTasks();renderCalendar();});
+  const nq=query(collection(db,"users",u.uid,"notes"),orderBy("createdAt","desc"));
+  onSnapshot(nq,s=>{notes=s.docs.map(d=>({id:d.id,...d.data()}));renderNotes();});
+});
+signInAnonymously(auth).catch(err=>notify("Revisa la configuración de Firebase: "+err.code));
+</script>
+</body>
+</html>
